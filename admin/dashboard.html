@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - MOVIEFLIX</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: #0b0c10; color: white; font-family: Arial; padding: 40px; }
+        .dashboard-box { background-color: #1f2833; padding: 30px; border-radius: 8px; max-width: 500px; margin: 0 auto; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; box-sizing: border-box; }
+        .btn { background-color: #e50914; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .nav { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 20px auto; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2>Movie Dashboard</h2>
+        <button class="btn" style="background-color: #45a29e;" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="dashboard-box">
+        <h3>Add New Movie</h3>
+        <form id="addMovieForm">
+            <input type="text" id="title" placeholder="Movie Title (e.g., Inception)" required>
+            <input type="text" id="slug" placeholder="Slug (e.g., inception-2010)" required>
+            <textarea id="description" placeholder="Movie Description..." rows="3"></textarea>
+            <input type="text" id="poster_url" placeholder="Poster Image URL (https://...)">
+            <input type="number" id="telegram_id" placeholder="Telegram Message ID (e.g., 5)" required>
+            <select id="status">
+                <option value="published">Published (Visible to public)</option>
+                <option value="draft">Draft (Hidden)</option>
+            </select>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 15px;">SAVE MOVIE</button>
+        </form>
+        <p id="status-msg" style="text-align: center; margin-top: 15px; font-weight: bold;"></p>
+    </div>
+
+    <script src="../config.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // Check if the user is actually logged in when they open this page
+        checkAuth(); 
+    </script>
+</body>
+</html>
