@@ -23,6 +23,11 @@ function checkAuth() {
     auth.onAuthStateChanged(user => {
         if (!user) {
             window.location.href = 'index.html';
+        } else {
+            // If user is logged in, load the movies list!
+            if (document.getElementById('admin-movie-list')) {
+                loadAdminMovies();
+            }
         }
     });
 }
@@ -50,12 +55,14 @@ if (addMovieForm) {
             statusMsg.innerText = "✅ Movie added successfully!";
             statusMsg.style.color = "#45a29e";
             addMovieForm.reset();
+            loadAdminMovies(); // Automatically refresh list after adding
         } catch (error) {
             statusMsg.innerText = "Error: " + error.message;
             statusMsg.style.color = "#e50914";
         }
     });
 }
+
 // LOAD MOVIES IN ADMIN PANEL
 async function loadAdminMovies() {
     const list = document.getElementById('admin-movie-list');
@@ -66,23 +73,23 @@ async function loadAdminMovies() {
         list.innerHTML = '';
         
         if (snapshot.empty) {
-            list.innerHTML = '<p>No movies found.</p>';
+            list.innerHTML = '<p>No movies found in the database.</p>';
             return;
         }
 
         let html = '<table style="width:100%; text-align:left; border-collapse: collapse;">';
-        html += '<tr style="border-bottom: 1px solid #45a29e;"><th>Title</th><th>Status</th><th>Action</th></tr>';
+        html += '<tr style="border-bottom: 1px solid #45a29e; color: #45a29e;"><th style="padding-bottom: 10px;">Title</th><th style="padding-bottom: 10px;">Status</th><th style="padding-bottom: 10px;">Action</th></tr>';
         
         snapshot.forEach(doc => {
             const movie = doc.data();
-            const movieId = doc.id; // Firebase's hidden unique ID
+            const movieId = doc.id;
             
             html += `
                 <tr style="border-bottom: 1px solid #333;">
-                    <td style="padding: 10px 0;">${movie.title}</td>
-                    <td style="padding: 10px 0;">${movie.status}</td>
-                    <td style="padding: 10px 0;">
-                        <button onclick="deleteMovie('${movieId}')" style="background-color: #e50914; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Delete</button>
+                    <td style="padding: 15px 0;">${movie.title}</td>
+                    <td style="padding: 15px 0;">${movie.status}</td>
+                    <td style="padding: 15px 0;">
+                        <button onclick="deleteMovie('${movieId}')" style="background-color: #e50914; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">Delete</button>
                     </td>
                 </tr>
             `;
@@ -90,7 +97,8 @@ async function loadAdminMovies() {
         html += '</table>';
         list.innerHTML = html;
     } catch (error) {
-        list.innerHTML = '<p>Error loading movies: ' + error.message + '</p>';
+        list.innerHTML = '<p style="color: #e50914;">Error loading movies: ' + error.message + '</p>';
+        console.error(error);
     }
 }
 
@@ -100,14 +108,9 @@ async function deleteMovie(movieId) {
         try {
             await db.collection('movies').doc(movieId).delete();
             alert("Movie deleted successfully!");
-            loadAdminMovies(); // Automatically refresh the list
+            loadAdminMovies(); // Refresh the list
         } catch (error) {
             alert("Error deleting movie: " + error.message);
         }
     }
-}
-
-// Run this when the dashboard loads
-if (document.getElementById('admin-movie-list')) {
-    loadAdminMovies();
 }
