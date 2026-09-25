@@ -56,3 +56,58 @@ if (addMovieForm) {
         }
     });
 }
+// LOAD MOVIES IN ADMIN PANEL
+async function loadAdminMovies() {
+    const list = document.getElementById('admin-movie-list');
+    if (!list) return;
+
+    try {
+        const snapshot = await db.collection('movies').get();
+        list.innerHTML = '';
+        
+        if (snapshot.empty) {
+            list.innerHTML = '<p>No movies found.</p>';
+            return;
+        }
+
+        let html = '<table style="width:100%; text-align:left; border-collapse: collapse;">';
+        html += '<tr style="border-bottom: 1px solid #45a29e;"><th>Title</th><th>Status</th><th>Action</th></tr>';
+        
+        snapshot.forEach(doc => {
+            const movie = doc.data();
+            const movieId = doc.id; // Firebase's hidden unique ID
+            
+            html += `
+                <tr style="border-bottom: 1px solid #333;">
+                    <td style="padding: 10px 0;">${movie.title}</td>
+                    <td style="padding: 10px 0;">${movie.status}</td>
+                    <td style="padding: 10px 0;">
+                        <button onclick="deleteMovie('${movieId}')" style="background-color: #e50914; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        html += '</table>';
+        list.innerHTML = html;
+    } catch (error) {
+        list.innerHTML = '<p>Error loading movies: ' + error.message + '</p>';
+    }
+}
+
+// DELETE MOVIE FUNCTION
+async function deleteMovie(movieId) {
+    if (confirm("Are you sure you want to delete this movie from the database?")) {
+        try {
+            await db.collection('movies').doc(movieId).delete();
+            alert("Movie deleted successfully!");
+            loadAdminMovies(); // Automatically refresh the list
+        } catch (error) {
+            alert("Error deleting movie: " + error.message);
+        }
+    }
+}
+
+// Run this when the dashboard loads
+if (document.getElementById('admin-movie-list')) {
+    loadAdminMovies();
+}
