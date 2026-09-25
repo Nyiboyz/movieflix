@@ -1,44 +1,37 @@
-const { createClient } = supabase;
-const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
 // LOGIN FUNCTION
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const errorMsg = document.getElementById('error-msg');
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
-
-    if (error) {
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = 'dashboard.html';
+    } catch (error) {
         errorMsg.innerText = "Login failed: " + error.message;
-    } else {
-        window.location.href = 'dashboard.html'; // Redirect to dashboard on success
     }
 }
 
 // LOGOUT FUNCTION
 async function logout() {
-    await supabaseClient.auth.signOut();
+    await auth.signOut();
     window.location.href = 'index.html';
 }
 
 // PROTECT DASHBOARD FUNCTION
-async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    // If there is no active session, kick them back to the login page
-    if (!session) {
-        window.location.href = 'index.html';
-    }
+function checkAuth() {
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            window.location.href = 'index.html';
+        }
+    });
 }
 
-// ADD MOVIE FUNCTION (Only runs if on the dashboard page)
+// ADD MOVIE FUNCTION
 const addMovieForm = document.getElementById('addMovieForm');
 if (addMovieForm) {
     addMovieForm.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Stop the page from reloading
+        e.preventDefault();
         const statusMsg = document.getElementById('status-msg');
         statusMsg.innerText = "Saving...";
         statusMsg.style.color = "white";
@@ -52,17 +45,14 @@ if (addMovieForm) {
             status: document.getElementById('status').value
         };
 
-        const { error } = await supabaseClient
-            .from('movies')
-            .insert([movieData]);
-
-        if (error) {
-            statusMsg.innerText = "Error: " + error.message;
-            statusMsg.style.color = "#e50914";
-        } else {
+        try {
+            await db.collection('movies').add(movieData);
             statusMsg.innerText = "✅ Movie added successfully!";
             statusMsg.style.color = "#45a29e";
-            addMovieForm.reset(); // Clear the form
+            addMovieForm.reset();
+        } catch (error) {
+            statusMsg.innerText = "Error: " + error.message;
+            statusMsg.style.color = "#e50914";
         }
     });
 }
