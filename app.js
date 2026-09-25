@@ -20,8 +20,10 @@ async function loadNetflixUI() {
             moviesHTML += `
                 <div class="movie-card">
                     <img src="${posterImg}" alt="${movie.title}">
+                    <div style="margin-top: 8px; font-size: 15px; font-weight: bold; text-align: center; color: #e5e5e5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px;">${movie.title}</div>
                     <a href="${watchLink}" target="_blank" class="play-btn">▶ PLAY</a>
                 </div>
+            `;
             `;
         });
 
