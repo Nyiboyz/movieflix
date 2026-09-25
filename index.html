@@ -1,20 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOVIEFLIX</title>
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #0b0c10; color: white; font-family: Arial; text-align: center; padding: 50px; }
-        .movie-card { background: #1f2833; padding: 20px; border-radius: 10px; display: inline-block; }
-        .btn { background: #e50914; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        body { background-color: #0b0c10; color: #ffffff; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; }
+        .navbar { padding: 20px 40px; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); font-size: 24px; font-weight: bold; color: #e50914; letter-spacing: 2px; }
+        .container { padding: 40px; }
+        h2 { border-left: 4px solid #e50914; padding-left: 10px; margin-bottom: 20px; }
+        .movie-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+        .movie-card { background-color: #1f2833; border-radius: 8px; padding: 15px; width: 220px; text-align: center; transition: transform 0.3s; }
+        .movie-card:hover { transform: scale(1.05); }
+        .movie-title { font-size: 18px; font-weight: bold; margin: 10px 0; }
+        .btn { background-color: #e50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 10px; width: 80%; }
+        .btn:hover { background-color: #b8070f; }
     </style>
 </head>
 <body>
-    <h1>MOVIEFLIX</h1>
-    <div class="movie-card">
-        <h2>My Test Movie</h2>
-        <p>Action • 2024</p>
-        <!-- This link opens Telegram and passes the movie slug to the bot -->
-        <a href="https://t.me/MovieFlix_Delivery_Bot?start=test-movie" class="btn">▶ WATCH NOW</a>
+
+    <div class="navbar">MOVIEFLIX</div>
+
+    <div class="container">
+        <h2>Latest Movies</h2>
+        <div class="movie-grid" id="movie-container">
+            <!-- Movies will be injected here by app.js -->
+            <p>Loading movies...</p>
+        </div>
     </div>
+
+    <!-- Load your scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
