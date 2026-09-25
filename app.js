@@ -26,7 +26,7 @@ async function loadNetflixUI() {
         });
 
         // Populate both rows (Later we can filter these dynamically via Admin portal categories)
-        latestContainer.innerHTML = moviesHTML + moviesHTML; // Doubled to ensure enough width for scrolling effect
+        latestContainer.innerHTML = moviesHTML ; // Doubled to ensure enough width for scrolling effect
         bestContainer.innerHTML = moviesHTML;
 
         // Activate the Advanced Scrolling Logic
