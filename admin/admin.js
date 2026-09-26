@@ -45,6 +45,7 @@ if (addMovieForm) {
             title: document.getElementById('title').value,
             slug: document.getElementById('slug').value,
             description: document.getElementById('description').value,
+            category: document.getElementById('category').value, // NEW LINE
             poster_url: document.getElementById('poster_url').value,
             telegram_message_id: parseInt(document.getElementById('telegram_id').value),
             status: document.getElementById('status').value
