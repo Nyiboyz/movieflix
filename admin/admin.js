@@ -1,22 +1,17 @@
-// LOGIN
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     try {
         await auth.signInWithEmailAndPassword(email, password);
         window.location.href = 'dashboard.html';
-    } catch (error) {
-        document.getElementById('error-msg').innerText = "Login failed: " + error.message;
-    }
+    } catch (error) { document.getElementById('error-msg').innerText = "Login failed: " + error.message; }
 }
 
-// LOGOUT
 async function logout() {
     await auth.signOut();
     window.location.href = 'index.html';
 }
 
-// CHECK AUTH
 function checkAuth() {
     auth.onAuthStateChanged(user => {
         if (!user) window.location.href = 'index.html';
@@ -24,7 +19,6 @@ function checkAuth() {
     });
 }
 
-// ADD OR UPDATE MOVIE
 const addMovieForm = document.getElementById('addMovieForm');
 if (addMovieForm) {
     addMovieForm.addEventListener('submit', async function(e) {
@@ -35,11 +29,23 @@ if (addMovieForm) {
 
         const editId = document.getElementById('edit_movie_id').value;
 
+        // Get multiple checked categories
+        const selectedCategories = [];
+        document.querySelectorAll('input[name="genre"]:checked').forEach(cb => {
+            selectedCategories.push(cb.value);
+        });
+
+        if (selectedCategories.length === 0) {
+            statusMsg.innerText = "Please select at least one category!";
+            statusMsg.style.color = "#e50914";
+            return;
+        }
+
         const movieData = {
             title: document.getElementById('title').value,
             slug: document.getElementById('slug').value,
             description: document.getElementById('description').value,
-            category: document.getElementById('category').value,
+            category: selectedCategories, // Now saves as an array!
             poster_url: document.getElementById('poster_url').value,
             telegram_message_id: parseInt(document.getElementById('telegram_id').value),
             status: document.getElementById('status').value
@@ -47,12 +53,10 @@ if (addMovieForm) {
 
         try {
             if (editId) {
-                // Update existing movie
                 await db.collection('movies').doc(editId).update(movieData);
                 statusMsg.innerText = "✅ Movie updated successfully!";
-                cancelEdit(); // Reset form back to normal
+                cancelEdit();
             } else {
-                // Add new movie
                 await db.collection('movies').add(movieData);
                 statusMsg.innerText = "✅ Movie added successfully!";
                 addMovieForm.reset();
@@ -68,32 +72,32 @@ if (addMovieForm) {
     });
 }
 
-// LOAD MOVIES
 async function loadAdminMovies() {
     const list = document.getElementById('admin-movie-list');
     if (!list) return;
 
     try {
         const snapshot = await db.collection('movies').get();
-        if (snapshot.empty) {
-            list.innerHTML = '<p>No movies found in the database.</p>';
-            return;
-        }
+        if (snapshot.empty) { list.innerHTML = '<p>No movies found.</p>'; return; }
 
         let html = '<table style="width:100%; text-align:left; border-collapse: collapse;">';
-        html += '<tr style="border-bottom: 1px solid #45a29e; color: #45a29e;"><th style="padding-bottom: 10px;">Title</th><th style="padding-bottom: 10px;">Category</th><th style="padding-bottom: 10px;">Status</th><th style="padding-bottom: 10px;">Action</th></tr>';
+        html += '<tr style="border-bottom: 1px solid #45a29e; color: #45a29e;"><th style="padding-bottom: 10px;">Title</th><th style="padding-bottom: 10px;">Categories</th><th style="padding-bottom: 10px;">Status</th><th style="padding-bottom: 10px;">Action</th></tr>';
         
         snapshot.forEach(doc => {
             const movie = doc.data();
             const movieId = doc.id;
             
+            // Format array to string for display
+            let displayCat = 'N/A';
+            if (Array.isArray(movie.category)) displayCat = movie.category.join(', ');
+            else if (movie.category) displayCat = movie.category; // Fallback for old single strings
+            
             html += `
                 <tr style="border-bottom: 1px solid #333;">
                     <td style="padding: 15px 0;">${movie.title}</td>
-                    <td style="padding: 15px 0;">${movie.category || 'N/A'}</td>
+                    <td style="padding: 15px 0;">${displayCat}</td>
                     <td style="padding: 15px 0;">${movie.status}</td>
                     <td style="padding: 15px 0;">
-                        <!-- NEW EDIT BUTTON -->
                         <button onclick="editMovie('${movieId}')" style="background-color: #f39c12; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px;">Edit</button>
                         <button onclick="deleteMovie('${movieId}')" style="background-color: #e50914; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">Delete</button>
                     </td>
@@ -102,12 +106,9 @@ async function loadAdminMovies() {
         });
         html += '</table>';
         list.innerHTML = html;
-    } catch (error) {
-        list.innerHTML = '<p style="color: #e50914;">Error loading movies: ' + error.message + '</p>';
-    }
+    } catch (error) { list.innerHTML = '<p style="color: #e50914;">Error loading movies</p>'; }
 }
 
-// EDIT MOVIE - Loads data into the form
 window.editMovie = async function(movieId) {
     try {
         const doc = await db.collection('movies').doc(movieId).get();
@@ -118,23 +119,27 @@ window.editMovie = async function(movieId) {
             document.getElementById('title').value = movie.title;
             document.getElementById('slug').value = movie.slug;
             document.getElementById('description').value = movie.description || '';
-            document.getElementById('category').value = movie.category || 'Action';
             document.getElementById('poster_url').value = movie.poster_url;
             document.getElementById('telegram_id').value = movie.telegram_message_id;
             document.getElementById('status').value = movie.status;
 
+            // Handle Checkboxes
+            document.querySelectorAll('input[name="genre"]').forEach(cb => cb.checked = false); // Uncheck all
+            let cats = movie.category || [];
+            if (!Array.isArray(cats)) cats = [cats]; // Fix old data format
+            cats.forEach(cat => {
+                const cb = document.querySelector(`input[name="genre"][value="${cat}"]`);
+                if(cb) cb.checked = true;
+            });
+
             document.getElementById('formTitle').innerText = "Edit Movie";
             document.getElementById('submitBtn').innerText = "UPDATE MOVIE";
             document.getElementById('cancelBtn').style.display = "block";
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    } catch (error) {
-        alert("Error loading movie details.");
-    }
+    } catch (error) { alert("Error loading movie details."); }
 }
 
-// CANCEL EDIT - Resets form to Add mode
 window.cancelEdit = function() {
     document.getElementById('addMovieForm').reset();
     document.getElementById('edit_movie_id').value = '';
@@ -143,14 +148,9 @@ window.cancelEdit = function() {
     document.getElementById('cancelBtn').style.display = "none";
 }
 
-// DELETE MOVIE
 window.deleteMovie = async function(movieId) {
     if (confirm("Are you sure you want to delete this movie?")) {
-        try {
-            await db.collection('movies').doc(movieId).delete();
-            loadAdminMovies();
-        } catch (error) {
-            alert("Error deleting movie: " + error.message);
-        }
+        await db.collection('movies').doc(movieId).delete();
+        loadAdminMovies();
     }
 }
