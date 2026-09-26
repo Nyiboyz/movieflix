@@ -6,7 +6,7 @@ async function loadNetflixUI() {
         const snapshot = await db.collection('movies').where('status', '==', 'published').get();
         
         if (snapshot.empty) {
-            latestContainer.innerHTML = "<p>No movies available right now.</p>";
+            latestContainer.innerHTML = "<p style='padding: 20px;'>No movies available right now.</p>";
             return;
         }
 
@@ -24,11 +24,10 @@ async function loadNetflixUI() {
                     <a href="${watchLink}" target="_blank" class="play-btn">▶ PLAY</a>
                 </div>
             `;
-            `;
         });
 
-        // Populate both rows (Later we can filter these dynamically via Admin portal categories)
-        latestContainer.innerHTML = moviesHTML ; // Doubled to ensure enough width for scrolling effect
+        // Put the movies in the rows (No cloning)
+        latestContainer.innerHTML = moviesHTML;
         bestContainer.innerHTML = moviesHTML;
 
         // Activate the Advanced Scrolling Logic
@@ -37,12 +36,15 @@ async function loadNetflixUI() {
 
     } catch (error) {
         console.error("Error fetching movies:", error);
+        latestContainer.innerHTML = "<p style='padding: 20px; color: red;'>Error loading movies. Please check console.</p>";
     }
 }
 
 // --- ADVANCED SCROLLING LOGIC ---
 function setupAdvancedScroll(rowId) {
     const row = document.getElementById(rowId);
+    if (!row) return; // Safety check
+
     let scrollSpeed = 0.5; // Default slow drift
     let isPaused = false;
     let pauseTimer;
@@ -56,36 +58,32 @@ function setupAdvancedScroll(rowId) {
     }
     scrollLoop(); // Start the loop
 
-    // 2. Cursor tracking (Auto roll going left and right)
+    // 2. Cursor tracking
     row.addEventListener('mousemove', (e) => {
-        if (isPaused) return; // Don't change speed if hovered on a movie
+        if (isPaused) return; 
         
         const rect = row.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         
-        // If mouse is on left 30% of screen, scroll left. Right 30%, scroll right.
         if (mouseX < rect.width * 0.3) {
             scrollSpeed = -3; // Scroll Left Fast
         } else if (mouseX > rect.width * 0.7) {
             scrollSpeed = 3;  // Scroll Right Fast
         } else {
-            scrollSpeed = 0.5; // Back to default slow drift right
+            scrollSpeed = 0.5; // Back to default
         }
     });
 
-    // Reset to default drift when mouse leaves the row area
     row.addEventListener('mouseleave', () => {
         scrollSpeed = 0.5;
     });
 
-    // 3. Stop for 3s when cursor is on a movie, then roll again
+    // 3. Stop for 3s when hovering a movie
     row.addEventListener('mouseover', (e) => {
-        // Check if what we hovered over is a movie card
         if (e.target.closest('.movie-card')) {
             isPaused = true;
             clearTimeout(pauseTimer);
             
-            // Wait exactly 3 seconds, then unpause
             pauseTimer = setTimeout(() => {
                 isPaused = false;
             }, 3000);
