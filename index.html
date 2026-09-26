@@ -10,135 +10,104 @@
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
     
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        :root {
-            --net-red: #E50914;
-            --bg-color: #141414;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: white;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
-        /* NAVBAR */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 4%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-            position: fixed;
-            top: 0;
-            width: 92%;
-            z-index: 100;
-        }
-        .nav-left { display: flex; align-items: center; gap: 30px; }
-        .nav-left h1 { color: var(--net-red); margin: 0; font-size: 28px; letter-spacing: 2px; font-weight: 900;}
-        .nav-links a { color: #e5e5e5; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.3s;}
-        .nav-links a:hover { color: white; }
-        .nav-right { display: flex; align-items: center; gap: 20px; font-size: 18px; cursor: pointer;}
+        :root { --net-red: #E50914; --bg-color: #141414; }
+        body { background-color: var(--bg-color); color: white; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* HERO PADDING */
-        .spacer { height: 90px; }
+        /* Responsive Navbar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 4%; background: rgba(0,0,0,0.9); position: fixed; top: 0; width: 92%; z-index: 100; flex-wrap: wrap; }
+        .nav-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .nav-left h1 { color: var(--net-red); margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;}
+        .search-box { display: flex; align-items: center; background: #333; border-radius: 20px; padding: 5px 15px; }
+        .search-box input { background: transparent; border: none; color: white; outline: none; margin-left: 8px; width: 150px;}
+        
+        .spacer { height: 100px; }
 
-        /* MOVIE ROWS */
+        /* Rows */
         .row-container { margin: 20px 0 40px 4%; position: relative;}
-        .row-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-        .movie-row {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding: 10px 0;
-            scroll-behavior: smooth;
-        }
-        /* Hide scrollbar for clean Netflix look */
+        .row-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #e5e5e5; border-left: 4px solid var(--net-red); padding-left: 10px;}
+        
+        .movie-row { display: flex; gap: 15px; overflow-x: auto; padding: 15px 0; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
         .movie-row::-webkit-scrollbar { display: none; }
-        .movie-row { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* MOVIE CARD */
-        .movie-card {
-            min-width: 200px;
-            max-width: 200px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            position: relative;
+        /* Movie Cards */
+        .movie-card { min-width: 160px; max-width: 160px; border-radius: 8px; position: relative; transition: 0.3s ease; }
+        .movie-card:hover { transform: translateY(-10px); z-index: 10; }
+        .movie-card img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        
+        .movie-title { margin-top: 8px; font-size: 14px; font-weight: bold; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;}
+        .play-btn { display: block; background: var(--net-red); color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-weight: bold; text-decoration: none; margin-top: 5px; font-size: 13px;}
+        
+        /* Responsive for Mobile */
+        @media (max-width: 768px) {
+            .movie-card { min-width: 130px; max-width: 130px; }
+            .movie-card img { height: 195px; }
+            .search-box input { width: 100px; }
         }
-        .movie-card:hover {
-            transform: scale(1.08);
-            z-index: 10;
+
+        /* Pop-Up Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);}
+        .modal-content { background: #181818; border-radius: 12px; display: flex; max-width: 700px; width: 100%; position: relative; overflow: hidden; border: 1px solid #333;}
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: white; cursor: pointer; z-index: 201;}
+        .modal-img { width: 40%; object-fit: cover; }
+        .modal-info { padding: 30px; width: 60%; }
+        .modal-info h2 { margin-top: 0; color: var(--net-red); font-size: 28px;}
+        .modal-info p { color: #ccc; line-height: 1.5; font-size: 15px; max-height: 150px; overflow-y: auto;}
+        .modal-play { display: inline-block; background: var(--net-red); color: white; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 16px;}
+        
+        @media (max-width: 768px) {
+            .modal-content { flex-direction: column; max-height: 90vh; overflow-y: auto;}
+            .modal-img { width: 100%; height: 300px; }
+            .modal-info { width: 100%; padding: 20px; box-sizing: border-box;}
         }
-        .movie-card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .movie-card .play-btn {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            background-color: var(--net-red);
-            color: white;
-            text-align: center;
-            padding: 8px 0;
-            border-radius: 4px;
-            font-weight: bold;
-            text-decoration: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .movie-card:hover .play-btn { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
+    <!-- Navbar & Search -->
     <div class="navbar">
         <div class="nav-left">
             <h1>MOVIEFLIX</h1>
-            <div class="nav-links">
-                <a href="#">Home</a>
-                <a href="#">TV Shows</a>
-                <a href="#">Movies</a>
-                <a href="#">Latest</a>
-                <a href="#">My List</a>
+            <div class="search-box">
+                <i class="fa fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search movies...">
             </div>
         </div>
-        <div class="nav-right">
-            <i class="fa fa-search" title="Search"></i>
-            <i class="fa fa-bell" title="Notifications"></i>
-            <i class="fa fa-user-circle" style="font-size: 24px;" title="Profile"></i>
+        <div style="font-size: 20px; cursor: pointer;">
+            <i class="fa fa-user-circle"></i>
         </div>
     </div>
 
     <div class="spacer"></div>
 
-    <!-- Latest Movies Row -->
+    <!-- Movie Rows -->
     <div class="row-container">
         <div class="row-title">Latest Releases</div>
-        <div class="movie-row" id="latest-movies">
-            <!-- Movies injected here by app.js -->
-        </div>
+        <div class="movie-row" id="latest-movies">Loading...</div>
     </div>
 
-    <!-- Best Rated Row -->
     <div class="row-container">
-        <div class="row-title">Best Rated Movies</div>
-        <div class="movie-row" id="best-rated-movies">
-            <!-- Movies injected here by app.js -->
+        <div class="row-title">Best Rated</div>
+        <div class="movie-row" id="best-rated-movies">Loading...</div>
+    </div>
+
+    <!-- Movie Details Modal -->
+    <div class="modal-overlay" id="movieModal">
+        <div class="modal-content">
+            <i class="fa fa-times modal-close" onclick="closeModal()"></i>
+            <img src="" id="modalImg" class="modal-img">
+            <div class="modal-info">
+                <h2 id="modalTitle">Title</h2>
+                <p id="modalDesc">Description goes here.</p>
+                <a href="#" id="modalLink" target="_blank" class="modal-play"><i class="fa fa-play"></i> Watch on Telegram</a>
+            </div>
         </div>
     </div>
 
-    <!-- Load Config and App Scripts -->
     <script src="config.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>
