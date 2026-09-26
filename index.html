@@ -4,36 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieFlix</title>
-    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --net-red: #E50914; --bg-color: #141414; }
         body { background-color: var(--bg-color); color: white; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* Navbar */
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 4%; background: #0b0c10; position: fixed; top: 0; width: 92%; z-index: 100; border-bottom: 2px solid #333;}
         .nav-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
         .nav-left h1 { color: var(--net-red); margin: 0; font-size: 24px; font-weight: 900;}
         .search-box { display: flex; align-items: center; background: #333; border-radius: 20px; padding: 6px 15px; border: 1px solid #555;}
         .search-box input { background: transparent; border: none; color: white; outline: none; margin-left: 8px; width: 180px;}
         
-        /* Category Tabs */
         .category-bar { display: flex; gap: 15px; padding: 90px 4% 10px 4%; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;}
         .category-bar::-webkit-scrollbar { display: none; }
         .cat-tab { background: #222; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.3s; border: 1px solid #444;}
         .cat-tab:hover { background: #444; }
         .cat-tab.active { background: var(--net-red); color: white; border-color: var(--net-red);}
 
-        /* Rows */
         .row-container { margin: 10px 0 40px 4%; position: relative;}
         .movie-row { display: flex; gap: 15px; overflow-x: auto; padding: 15px 0; -ms-overflow-style: none; scrollbar-width: none; }
         .movie-row::-webkit-scrollbar { display: none; }
 
-        /* Cards */
         .movie-card { min-width: 160px; max-width: 160px; border-radius: 8px; transition: 0.3s ease; }
         .movie-card:hover { transform: translateY(-5px); z-index: 10; }
         .movie-card img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); border: 2px solid transparent;}
@@ -43,7 +37,6 @@
         .play-btn { display: block; background: #333; color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-weight: bold; text-decoration: none; margin-top: 5px; font-size: 13px; transition: 0.3s;}
         .play-btn:hover { background: var(--net-red); }
 
-        /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;}
         .modal-content { background: #181818; border-radius: 12px; display: flex; max-width: 700px; width: 100%; position: relative; border: 1px solid #333;}
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: white; cursor: pointer; z-index: 201; background: rgba(0,0,0,0.5); border-radius: 50%; padding: 5px 10px;}
@@ -73,13 +66,19 @@
         </div>
     </div>
 
+    <!-- NEW CATEGORY TABS -->
     <div class="category-bar">
         <span class="cat-tab active" onclick="window.filterCategory('All', this)">All</span>
         <span class="cat-tab" onclick="window.filterCategory('Action', this)">Action</span>
+        <span class="cat-tab" onclick="window.filterCategory('Sci-Fi', this)">Sci-Fi</span>
+        <span class="cat-tab" onclick="window.filterCategory('Romance', this)">Romance</span>
         <span class="cat-tab" onclick="window.filterCategory('Thriller', this)">Thriller</span>
-        <span class="cat-tab" onclick="window.filterCategory('Crime', this)">Crime</span>
+        <span class="cat-tab" onclick="window.filterCategory('Horror', this)">Horror</span>
         <span class="cat-tab" onclick="window.filterCategory('Drama', this)">Drama</span>
         <span class="cat-tab" onclick="window.filterCategory('Comedy', this)">Comedy</span>
+        <span class="cat-tab" onclick="window.filterCategory('Fantasy', this)">Fantasy</span>
+        <span class="cat-tab" onclick="window.filterCategory('Animation', this)">Animation</span>
+        <span class="cat-tab" onclick="window.filterCategory('Crime', this)">Crime</span>
         <span class="cat-tab" onclick="window.filterCategory('Series', this)">Series</span>
     </div>
 
