@@ -13,13 +13,18 @@
         body { background-color: #0b0c10; color: white; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto 20px auto; }
         .dashboard-box { background-color: #1a1a1d; padding: 20px; border-radius: 8px; max-width: 800px; margin: 0 auto; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; background-color: #333; color: white; border: 1px solid #45a29e; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"], input[type="url"], input[type="number"], select, textarea { width: 100%; padding: 10px; margin: 10px 0; background-color: #333; color: white; border: 1px solid #45a29e; border-radius: 4px; box-sizing: border-box; }
         .btn { background-color: #45a29e; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn:hover { background-color: #66fcf1; color: black; }
         .btn-logout { background-color: #e50914; }
         .btn-logout:hover { background-color: #ff0f1f; color: white; }
         .btn-cancel { background-color: #555; margin-top: 10px; display: none; }
         .btn-cancel:hover { background-color: #777; }
+        
+        /* Checkbox Styles */
+        .checkbox-group { background: #333; border: 1px solid #45a29e; border-radius: 4px; padding: 15px; margin: 10px 0; display: flex; flex-wrap: wrap; gap: 15px; }
+        .checkbox-group label { display: flex; align-items: center; font-size: 14px; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { width: auto; margin: 0 8px 0 0; cursor: pointer; transform: scale(1.2); }
     </style>
 </head>
 <body onload="checkAuth()">
@@ -32,7 +37,6 @@
     <div class="dashboard-box">
         <h3 id="formTitle" style="color: #45a29e; border-bottom: 1px solid #333; padding-bottom: 10px;">Add New Movie</h3>
         <form id="addMovieForm">
-            <!-- HIDDEN INPUT TO STORE MOVIE ID WHEN EDITING -->
             <input type="hidden" id="edit_movie_id" value="">
 
             <label>Movie Title</label>
@@ -44,15 +48,20 @@
             <label>Description</label>
             <textarea id="description" rows="3" placeholder="Movie synopsis..."></textarea>
 
-            <label>Category / Genre</label>
-            <select id="category">
-                <option value="Action">Action</option>
-                <option value="Thriller">Thriller</option>
-                <option value="Crime">Crime</option>
-                <option value="Drama">Drama</option>
-                <option value="Comedy">Comedy</option>
-                <option value="Series">Series</option>
-            </select>
+            <label>Categories / Genres (Select one or more)</label>
+            <div class="checkbox-group" id="category_checkboxes">
+                <label><input type="checkbox" name="genre" value="Action"> Action</label>
+                <label><input type="checkbox" name="genre" value="Sci-Fi"> Sci-Fi</label>
+                <label><input type="checkbox" name="genre" value="Romance"> Romance</label>
+                <label><input type="checkbox" name="genre" value="Thriller"> Thriller</label>
+                <label><input type="checkbox" name="genre" value="Horror"> Horror</label>
+                <label><input type="checkbox" name="genre" value="Drama"> Drama</label>
+                <label><input type="checkbox" name="genre" value="Comedy"> Comedy</label>
+                <label><input type="checkbox" name="genre" value="Fantasy"> Fantasy</label>
+                <label><input type="checkbox" name="genre" value="Animation"> Animation</label>
+                <label><input type="checkbox" name="genre" value="Crime"> Crime</label>
+                <label><input type="checkbox" name="genre" value="Series"> Series</label>
+            </div>
 
             <label>Poster Image URL</label>
             <input type="url" id="poster_url" required placeholder="https://link-to-image.jpg">
