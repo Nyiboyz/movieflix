@@ -4,103 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieFlix</title>
-    
-    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
-    
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
         :root { --net-red: #E50914; --bg-color: #141414; }
         body { background-color: var(--bg-color); color: white; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; overflow-x: hidden; }
         
-        /* Responsive Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 4%; background: rgba(0,0,0,0.9); position: fixed; top: 0; width: 92%; z-index: 100; flex-wrap: wrap; }
+        /* Navbar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 4%; background: #0b0c10; position: fixed; top: 0; width: 92%; z-index: 100; border-bottom: 2px solid #333;}
         .nav-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .nav-left h1 { color: var(--net-red); margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;}
-        .search-box { display: flex; align-items: center; background: #333; border-radius: 20px; padding: 5px 15px; }
-        .search-box input { background: transparent; border: none; color: white; outline: none; margin-left: 8px; width: 150px;}
+        .nav-left h1 { color: var(--net-red); margin: 0; font-size: 24px; font-weight: 900;}
+        .search-box { display: flex; align-items: center; background: #333; border-radius: 20px; padding: 6px 15px; border: 1px solid #555;}
+        .search-box input { background: transparent; border: none; color: white; outline: none; margin-left: 8px; width: 180px;}
         
-        .spacer { height: 100px; }
+        /* Category Tabs */
+        .category-bar { display: flex; gap: 15px; padding: 90px 4% 10px 4%; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;}
+        .category-bar::-webkit-scrollbar { display: none; }
+        .cat-tab { background: #222; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.3s; border: 1px solid #444;}
+        .cat-tab:hover { background: #444; }
+        .cat-tab.active { background: var(--net-red); color: white; border-color: var(--net-red);}
 
         /* Rows */
-        .row-container { margin: 20px 0 40px 4%; position: relative;}
-        .row-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #e5e5e5; border-left: 4px solid var(--net-red); padding-left: 10px;}
-        
-        .movie-row { display: flex; gap: 15px; overflow-x: auto; padding: 15px 0; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
+        .row-container { margin: 10px 0 40px 4%; position: relative;}
+        .movie-row { display: flex; gap: 15px; overflow-x: auto; padding: 15px 0; -ms-overflow-style: none; scrollbar-width: none; }
         .movie-row::-webkit-scrollbar { display: none; }
 
-        /* Movie Cards */
-        .movie-card { min-width: 160px; max-width: 160px; border-radius: 8px; position: relative; transition: 0.3s ease; }
-        .movie-card:hover { transform: translateY(-10px); z-index: 10; }
-        .movie-card img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        /* Cards */
+        .movie-card { min-width: 160px; max-width: 160px; border-radius: 8px; transition: 0.3s ease; }
+        .movie-card:hover { transform: translateY(-5px); z-index: 10; }
+        .movie-card img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); border: 2px solid transparent;}
+        .movie-card img:hover { border: 2px solid var(--net-red); }
         
-        .movie-title { margin-top: 8px; font-size: 14px; font-weight: bold; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;}
-        .play-btn { display: block; background: var(--net-red); color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-weight: bold; text-decoration: none; margin-top: 5px; font-size: 13px;}
-        
-        /* Responsive for Mobile */
-        @media (max-width: 768px) {
-            .movie-card { min-width: 130px; max-width: 130px; }
-            .movie-card img { height: 195px; }
-            .search-box input { width: 100px; }
-        }
+        .movie-title { margin-top: 8px; font-size: 14px; font-weight: bold; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .play-btn { display: block; background: #333; color: white; text-align: center; padding: 6px 0; border-radius: 4px; font-weight: bold; text-decoration: none; margin-top: 5px; font-size: 13px; transition: 0.3s;}
+        .play-btn:hover { background: var(--net-red); }
 
-        /* Pop-Up Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);}
-        .modal-content { background: #181818; border-radius: 12px; display: flex; max-width: 700px; width: 100%; position: relative; overflow: hidden; border: 1px solid #333;}
-        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: white; cursor: pointer; z-index: 201;}
-        .modal-img { width: 40%; object-fit: cover; }
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;}
+        .modal-content { background: #181818; border-radius: 12px; display: flex; max-width: 700px; width: 100%; position: relative; border: 1px solid #333;}
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: white; cursor: pointer; z-index: 201; background: rgba(0,0,0,0.5); border-radius: 50%; padding: 5px 10px;}
+        .modal-img { width: 40%; object-fit: cover; border-top-left-radius: 12px; border-bottom-left-radius: 12px;}
         .modal-info { padding: 30px; width: 60%; }
         .modal-info h2 { margin-top: 0; color: var(--net-red); font-size: 28px;}
+        .modal-cat { display: inline-block; background: #333; padding: 4px 10px; border-radius: 15px; font-size: 12px; margin-bottom: 15px;}
         .modal-info p { color: #ccc; line-height: 1.5; font-size: 15px; max-height: 150px; overflow-y: auto;}
-        .modal-play { display: inline-block; background: var(--net-red); color: white; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; margin-top: 20px; font-size: 16px;}
+        .modal-play { display: inline-block; background: var(--net-red); color: white; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; margin-top: 20px;}
         
         @media (max-width: 768px) {
             .modal-content { flex-direction: column; max-height: 90vh; overflow-y: auto;}
-            .modal-img { width: 100%; height: 300px; }
+            .modal-img { width: 100%; height: 250px; border-radius: 12px 12px 0 0; }
             .modal-info { width: 100%; padding: 20px; box-sizing: border-box;}
         }
     </style>
 </head>
 <body>
 
-    <!-- Navbar & Search -->
     <div class="navbar">
         <div class="nav-left">
             <h1>MOVIEFLIX</h1>
             <div class="search-box">
                 <i class="fa fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search movies...">
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="window.searchMovies()">
             </div>
-        </div>
-        <div style="font-size: 20px; cursor: pointer;">
-            <i class="fa fa-user-circle"></i>
         </div>
     </div>
 
-    <div class="spacer"></div>
+    <div class="category-bar">
+        <span class="cat-tab active" onclick="window.filterCategory('All', this)">All</span>
+        <span class="cat-tab" onclick="window.filterCategory('Action', this)">Action</span>
+        <span class="cat-tab" onclick="window.filterCategory('Thriller', this)">Thriller</span>
+        <span class="cat-tab" onclick="window.filterCategory('Crime', this)">Crime</span>
+        <span class="cat-tab" onclick="window.filterCategory('Drama', this)">Drama</span>
+        <span class="cat-tab" onclick="window.filterCategory('Comedy', this)">Comedy</span>
+        <span class="cat-tab" onclick="window.filterCategory('Series', this)">Series</span>
+    </div>
 
-    <!-- Movie Rows -->
     <div class="row-container">
-        <div class="row-title">Latest Releases</div>
         <div class="movie-row" id="latest-movies">Loading...</div>
     </div>
 
-    <div class="row-container">
-        <div class="row-title">Best Rated</div>
-        <div class="movie-row" id="best-rated-movies">Loading...</div>
-    </div>
-
-    <!-- Movie Details Modal -->
     <div class="modal-overlay" id="movieModal">
         <div class="modal-content">
-            <i class="fa fa-times modal-close" onclick="closeModal()"></i>
+            <i class="fa fa-times modal-close" onclick="window.closeModal()"></i>
             <img src="" id="modalImg" class="modal-img">
             <div class="modal-info">
                 <h2 id="modalTitle">Title</h2>
+                <span id="modalCategory" class="modal-cat">Genre</span>
                 <p id="modalDesc">Description goes here.</p>
                 <a href="#" id="modalLink" target="_blank" class="modal-play"><i class="fa fa-play"></i> Watch on Telegram</a>
             </div>
