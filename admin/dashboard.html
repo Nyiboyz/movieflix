@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieFlix - Admin Dashboard</title>
 
-    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
@@ -19,6 +18,8 @@
         .btn:hover { background-color: #66fcf1; color: black; }
         .btn-logout { background-color: #e50914; }
         .btn-logout:hover { background-color: #ff0f1f; color: white; }
+        .btn-cancel { background-color: #555; margin-top: 10px; display: none; }
+        .btn-cancel:hover { background-color: #777; }
     </style>
 </head>
 <body onload="checkAuth()">
@@ -29,8 +30,11 @@
     </div>
 
     <div class="dashboard-box">
-        <h3 style="color: #45a29e; border-bottom: 1px solid #333; padding-bottom: 10px;">Add New Movie</h3>
+        <h3 id="formTitle" style="color: #45a29e; border-bottom: 1px solid #333; padding-bottom: 10px;">Add New Movie</h3>
         <form id="addMovieForm">
+            <!-- HIDDEN INPUT TO STORE MOVIE ID WHEN EDITING -->
+            <input type="hidden" id="edit_movie_id" value="">
+
             <label>Movie Title</label>
             <input type="text" id="title" required placeholder="e.g., Inception">
 
@@ -62,7 +66,8 @@
                 <option value="draft">Draft (Hidden)</option>
             </select>
 
-            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">SAVE MOVIE</button>
+            <button type="submit" id="submitBtn" class="btn" style="width: 100%; margin-top: 10px;">SAVE MOVIE</button>
+            <button type="button" id="cancelBtn" class="btn btn-cancel" style="width: 100%;" onclick="cancelEdit()">CANCEL EDIT</button>
             <p id="status-msg" style="text-align: center; margin-top: 10px;"></p>
         </form>
     </div>
