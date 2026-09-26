@@ -1,4 +1,4 @@
-window.allMovies = []; // Make global to ensure search always works
+window.allMovies = []; 
 window.currentCategory = 'All';
 
 async function initApp() {
@@ -9,8 +9,11 @@ async function initApp() {
         snapshot.forEach(doc => {
             const data = doc.data();
             data.id = doc.id;
-            // If old movies don't have a category yet, default to 'Action'
-            if(!data.category) data.category = 'Action'; 
+            
+            // Fix old database entries so they don't break the new array system
+            if(!data.category) data.category = ['Action']; 
+            else if(!Array.isArray(data.category)) data.category = [data.category]; 
+            
             window.allMovies.push(data);
         });
 
@@ -25,13 +28,13 @@ async function initApp() {
 function renderMovies(searchQuery = '') {
     const container = document.getElementById('latest-movies');
     
-    // 1. Filter by Category
     let filtered = window.allMovies;
+    
+    // Filter by Array logic
     if (window.currentCategory !== 'All') {
-        filtered = filtered.filter(m => m.category === window.currentCategory);
+        filtered = filtered.filter(m => m.category && m.category.includes(window.currentCategory));
     }
     
-    // 2. Filter by Search Query
     if (searchQuery) {
         filtered = filtered.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
     }
@@ -56,10 +59,8 @@ function renderMovies(searchQuery = '') {
     });
 
     container.innerHTML = html;
-    setupAdvancedScroll('latest-movies'); // Restart scroll animation on new items
+    setupAdvancedScroll('latest-movies'); 
 }
-
-// --- GLOBAL FUNCTIONS GUARANTEED TO WORK IN HTML ---
 
 window.searchMovies = function() {
     const query = document.getElementById('searchInput').value;
@@ -68,12 +69,8 @@ window.searchMovies = function() {
 
 window.filterCategory = function(category, element) {
     window.currentCategory = category;
-    
-    // Update red button styling
     document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.remove('active'));
     element.classList.add('active');
-    
-    // Render keeping search term if any
     const currentSearch = document.getElementById('searchInput').value;
     renderMovies(currentSearch);
 };
@@ -84,7 +81,11 @@ window.openModal = function(movieId) {
 
     document.getElementById('modalImg').src = movie.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster';
     document.getElementById('modalTitle').innerText = movie.title;
-    document.getElementById('modalCategory').innerText = movie.category || 'Movie';
+    
+    // Join the array for a beautiful display (e.g., "Action, Sci-Fi")
+    const catDisplay = Array.isArray(movie.category) ? movie.category.join(', ') : (movie.category || 'Movie');
+    document.getElementById('modalCategory').innerText = catDisplay;
+    
     document.getElementById('modalDesc').innerText = movie.description || "No description available.";
     
     const watchLink = `https://t.me/${CONFIG.BOT_USERNAME}?start=${movie.slug}`;
@@ -97,13 +98,11 @@ window.closeModal = function() {
     document.getElementById('movieModal').style.display = 'none';
 };
 
-// Close modal if clicking the dark background
 window.onclick = function(event) {
     const modal = document.getElementById('movieModal');
     if (event.target === modal) window.closeModal();
 };
 
-// --- SCROLL LOGIC ---
 function setupAdvancedScroll(rowId) {
     const row = document.getElementById(rowId);
     if (!row) return;
@@ -112,7 +111,6 @@ function setupAdvancedScroll(rowId) {
     let isPaused = false;
     let pauseTimer;
 
-    // Clear previous event listeners by cloning the node to prevent speed bugs on re-render
     const newRow = row.cloneNode(true);
     row.parentNode.replaceChild(newRow, row);
 
